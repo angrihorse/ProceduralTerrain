@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class PerlinNoise : MonoBehaviour
 {
     // Width and height of the texture in pixels.
+	[Range(10f, 200f)]
     public int resolution;
 
 	// The number of cycles of the basic noise pattern that are repeated
@@ -15,10 +16,12 @@ public class PerlinNoise : MonoBehaviour
 	[Range(-1f, 1f)]
 	public float verticalOffset;
 
+	public float moveSpeed;
+	public float scrollSpeed;
+	public TerrainType[] terrainTypes;
+
     private Texture2D texture;
     private Color[] colorMap;
-
-	public TerrainType[] terrainTypes;
 
     void Start()
     {
@@ -89,8 +92,23 @@ public class PerlinNoise : MonoBehaviour
 
     void Update()
     {
+		PlayerControls();
         GenerateTextureFromNoise(GenerateNoiseMap(baseFrequency, verticalOffset, resolution));
     }
+
+	void PlayerControls() {
+		Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        Vector2 inputDir = input.normalized;
+		Vector3 inputDir3D = new Vector3(inputDir.x, 0, inputDir.y);
+		transform.Translate(inputDir3D * moveSpeed * Time.deltaTime);
+
+		if (Input.GetAxis("Mouse ScrollWheel") != 0f ) {
+		   baseFrequency -= scrollSpeed * Input.GetAxis("Mouse ScrollWheel");
+		   if (baseFrequency < 0) {
+			   baseFrequency = 0;
+		   }
+		}
+	}
 }
 
 [System.Serializable]
